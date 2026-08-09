@@ -17,7 +17,8 @@ Professional objectives of the toolkit:
 - **Integrity Assurance**: Provides SHA256 hashing and signature verification to ensure data has not been altered.  
 - **Authentication**: Uses RSA signing and verification to confirm the authenticity of files and sources.  
 - **Confidentiality**: Offers steganography to conceal information within PNG images for an additional security layer.  
-- **Educational Use**: Serves as a practical tool for students and researchers to experiment with cryptographic concepts.  
+- **Educational Use**: Serves as a practical tool for students and researchers to experiment with cryptographic concepts.
+- **Cross-System Collaboration**: Enables encrypted files and messages to be securely shared and decrypted on different systems using provided keys.  (new)
 
 This toolkit is designed for both **cybersecurity professionals** and **academic/research environments**.
 
@@ -35,6 +36,9 @@ This toolkit is designed for both **cybersecurity professionals** and **academic
 - Steganography for hiding/extracting data in PNG images  
 - ASCII menu interface with quick reply
 - Command-line argument support → Run specific operations directly with flags (e.g., --encrypt, --manual, --password) without using the interactive menu.
+- Cross-system decryption support (new):  
+  Encrypted files/messages can be shared with another user,  
+  who can decrypt them on their own system using the provided keys.
 
 
 
@@ -53,7 +57,7 @@ You can use the tool **interactively via the menu** or run it directly from the 
 git clone https://github.com/aybiketutarr/crypto_toolkit.git
 cd crypto_toolkit
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate ("deactivate" to exit)
 pip install -r requirements.txt
 python crypto.py
 ```
@@ -63,7 +67,8 @@ python crypto.py
 * **Method 1: Activating the virtual environment first (Recommended)**
   > *Note: To use this method, you must be in the project's root folder (`cd crypto_toolkit`) in the terminal.*
   ```bash
-  source venv/bin/activate
+  cd crypto_toolkit
+  source venv/bin/activate ("deactivate" to exit)
   python crypto.py --encrypt ~/file.txt
 
 * **Method 2: Directly via the venv Python path (Without entering the folder)**
