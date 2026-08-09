@@ -42,6 +42,9 @@ This toolkit is designed for both **cybersecurity professionals** and **academic
 ```bash
 git clone https://github.com/aybiketutarr/crypto_toolkit.git
 cd crypto_toolkit
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 python crypto.py
 
 
