@@ -93,16 +93,21 @@ def show_help():
 [+] 15 → Quit
     Exit the program
 
+
 --- CLI Usage Examples ---
-python toolkit1.py --encrypt file.txt
-python toolkit1.py --decrypt file.txt.enc
-python toolkit1.py --rsa-encrypt "Message"
-python toolkit1.py --rsa-decrypt message.enc
-python toolkit1.py --hash file.txt
-python toolkit1.py --password 16
-python toolkit1.py --steg-hide image.png secret.txt
-python toolkit1.py --steg-extract steg.png output.txt
-python toolkit.py --manual (help menu)
+
+                 | --encrypt file.txt
+                 | --decrypt file.txt.enc
+                 | --decrypt file.txt.enc --key aes.key      <Decrypt file.txt.enc using external AES key file>
+                 | --rsa-encrypt "Message"      <Encrypt message with default public.pem>
+                 | --rsa-decrypt message.enc
+python crypto.py | --rsa-encrypt "message" --pubkey friend_public.pem      <Encrypt message with external public key>
+                 | --rsa-decrypt message.enc --privkey sent_private.pem      <Decrypt message with external private key>
+                 | --hash file.txt
+                 | --password
+                 | --steg-hide image.png secret.txt
+                 | --steg-extract steg.png output.txt
+                 | --manual (help menu)
 """)
 
 
@@ -263,9 +268,11 @@ def parse_args():
 
     # 4) RSA Encrypt
     parser.add_argument("--rsa-encrypt", help="Encrypt a message with RSA")
+    parser.add_argument("--pubkey", help="Path to RSA public key file (optional)")
 
     # 5) RSA Decrypt
     parser.add_argument("--rsa-decrypt", help="Decrypt a message file with RSA")
+    parser.add_argument("--privkey", help="Path to RSA private key file (optional)")
 
     # 6) File Hash
     parser.add_argument("--hash", help="Calculate SHA256 hash of a file")
@@ -293,6 +300,13 @@ def parse_args():
 
     # 14) Steg Extract
     parser.add_argument("--steg-extract", nargs=2, help="Extract secret from PNG (image, output)")
+
+    # 15) Custom AES Key (optional)
+    # By default, the program uses aes.key generated during encryption.
+    # In file-sharing scenarios, the sender must also provide the matching key file.
+    # The receiver can specify that key file with --key to decrypt successfully.
+    parser.add_argument("--key", help="Path to AES key file (optional)")
+
 
     return parser.parse_args()
 
@@ -399,7 +413,7 @@ def main():
 if __name__ == "__main__":
     args = parse_args()
 
-     # Eğer kullanıcı --help yazdıysa, menüye girmeden yardım göster
+    # Eğer kullanıcı --help yazdıysa, menüye girmeden yardım göster
     if args.manual:
         show_help()
         exit(0)   # programı bitiriyoruz
@@ -407,17 +421,31 @@ if __name__ == "__main__":
     if args.encrypt:
         key = get_random_bytes(32)
         encrypt_file(args.encrypt, key)
-        open("aes.key","wb").write(key)
+        open("aes.key", "wb").write(key)
 
     elif args.decrypt:
-        key = open("aes.key","rb").read()
+        # AES-GCM decrypt
+        # If the user provides --key, read the AES key from that file.
+        # Otherwise, fall back to the default aes.key in the current directory.
+        if args.key:
+            with open(args.key, "rb") as f:
+                key = f.read()
+        else:
+            with open("aes.key", "rb") as f:
+                key = f.read()
         decrypt_file(args.decrypt, key)
 
     elif args.rsa_encrypt:
-        rsa_encrypt(args.rsa_encrypt, "/home/hacker/Desktop/crypto_toolkit/public.pem")
+        # RSA encrypt
+        # If the user provides --pubkey, use that file; otherwise default to public.pem
+        pubkey_file = args.pubkey if args.pubkey else "/home/hacker/Desktop/crypto_toolkit/public.pem"
+        rsa_encrypt(args.rsa_encrypt, pubkey_file)
 
     elif args.rsa_decrypt:
-         rsa_decrypt(args.rsa_decrypt, "/home/hacker/Desktop/crypto_toolkit/private.pem")
+        # RSA decrypt
+        # If the user provides --privkey, use that file; otherwise default to private.pem
+        privkey_file = args.privkey if args.privkey else "/home/hacker/Desktop/crypto_toolkit/private.pem"
+        rsa_decrypt(args.rsa_decrypt, privkey_file)
 
     elif args.hash:
         hash_file(args.hash)
